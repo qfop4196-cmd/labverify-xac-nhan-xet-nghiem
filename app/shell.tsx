@@ -1,0 +1,12 @@
+'use client';
+import { Activity, LayoutDashboard, FolderCheck, FlaskConical, BookOpen, History, CircleHelp, ShieldCheck, ArrowUpRight } from 'lucide-react';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+export const navigation = [{id:'workspace',title:'Đánh giá phương pháp',icon:FlaskConical},{id:'dashboard',title:'Tổng quan',icon:LayoutDashboard},{id:'records',title:'Hồ sơ xác nhận',icon:FolderCheck},{id:'sources',title:'Thư viện tham chiếu',icon:BookOpen},{id:'audit',title:'Nhật ký thao tác',icon:History},{id:'guide',title:'Hướng dẫn sử dụng',icon:CircleHelp}];
+export default function Shell({view,onNavigate,children,role='Không gian thử nghiệm'}:{view:string;onNavigate:(v:string)=>void;children:React.ReactNode;role?:string}) {
+return <SidebarProvider style={{'--sidebar-width':'248px'} as React.CSSProperties}>
+<Sidebar className="lab-sidebar"><SidebarHeader><div className="brand"><span className="brand-mark"><Activity size={25}/></span><div>Lab<span>Verify</span><small>METHOD VERIFICATION</small></div></div></SidebarHeader>
+<SidebarContent><div className="workspace-label">KHÔNG GIAN LÀM VIỆC</div><nav className="navigation">{navigation.map(n=><button key={n.id} onClick={()=>onNavigate(n.id)} className={view===n.id?'active':''}><n.icon size={19}/>{n.title}{view===n.id&&<span className="nav-dot"/>}</button>)}</nav><div className="sidebar-note"><ShieldCheck size={23}/><strong>Chất lượng có căn cứ</strong><p>Đối chiếu từng thông số.<br/>Lưu dấu từng quyết định.</p><button onClick={()=>onNavigate('sources')}>Khám phá nguồn dữ liệu <ArrowUpRight size={16}/></button></div></SidebarContent>
+<SidebarFooter><div className="sidebar-user"><div className="avatar">XN</div><div><strong>Phòng xét nghiệm</strong><small>{role}</small></div></div><div className="version">LabVerify 1.0 <span>● Hệ thống sẵn sàng</span></div></SidebarFooter></Sidebar>
+<div className="main-shell"><header className="topbar"><div><SidebarTrigger/><span>Quản lý chất lượng</span><span className="slash">/</span><strong>{navigation.find(n=>n.id===view)?.title}</strong></div><span className="demo-label"><span/> Dữ liệu giả lập / ẩn danh</span></header><main className="page-content">{children}</main><footer className="page-footer"><span>LabVerify · XN-QTQL-16</span><span>Kết quả tính toán hỗ trợ đánh giá. Quyết định áp dụng thuộc người phê duyệt.</span></footer></div>
+</SidebarProvider>;
+}

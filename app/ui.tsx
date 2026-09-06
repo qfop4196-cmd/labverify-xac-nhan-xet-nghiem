@@ -1,0 +1,14 @@
+'use client';
+import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue} from '@/components/ui/select';
+import {Checkbox} from '@/components/ui/checkbox';
+import {CheckCircle2,Clock3,AlertCircle,FileCheck2} from 'lucide-react';
+export function Picker({value,onChange,items,label,disabled=false}:{value:string;onChange:(s:string)=>void;items:{value:string;label:string}[];label:string;disabled?:boolean}) {return <Select disabled={disabled} value={value} onValueChange={v=>v!==null&&onChange(String(v))} items={items}><SelectTrigger aria-label={label} className="picker"><SelectValue/></SelectTrigger><SelectContent>{items.map(i=><SelectItem value={i.value} key={i.value}>{i.label}</SelectItem>)}</SelectContent></Select>}
+export const fmt=(v:number|null|undefined,digits=2)=>v===null||v===undefined||!Number.isFinite(v)?'—':v.toLocaleString('vi-VN',{maximumFractionDigits:digits,minimumFractionDigits:Math.min(digits,2)});
+export const statusLabel:Record<string,string>={draft:'Bản nháp',review:'Chờ xem xét',approved:'Đã phê duyệt',returned:'Cần bổ sung',pass:'Đạt tiêu chí',fail:'Chưa đạt',insufficient:'Chưa đủ cơ sở'};
+export function Status({value}:{value:string}){const Icon=value==='pass'||value==='approved'?CheckCircle2:value==='fail'||value==='returned'?AlertCircle:Clock3;return <span className={`status ${value}`}><Icon size={14}/>{statusLabel[value]||value}</span>}
+export function CheckField({checked,onChange,children}:{checked:boolean;onChange:(b:boolean)=>void;children:React.ReactNode}){return <label className="check-field"><Checkbox checked={checked} onCheckedChange={v=>onChange(!!v)}/><span>{children}</span></label>}
+export function Heading({title,subtitle,actions}:{title:string;subtitle:string;actions?:React.ReactNode}){return <div className="page-heading"><div><div className="eyebrow"><span/> LABVERIFY / KHÔNG GIAN CHẤT LƯỢNG</div><h1>{title}</h1><p>{subtitle}</p></div>{actions}</div>}
+export function PanelTitle({title,subtitle,icon,number}:{title:string;subtitle?:string;icon?:React.ReactNode;number?:string}){return <div className="panel-heading"><div className="section-icon">{icon||<FileCheck2 size={21}/>}</div><div><h2>{title}</h2>{subtitle&&<p>{subtitle}</p>}</div>{number&&<span className="section-no">{number}</span>}</div>}
+export async function api(action:string,data:Record<string,unknown>={}){const r=await fetch('/api/lab',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...data})});const json:any=await r.json();if(!r.ok)throw new Error(json.error||'Không xử lý được yêu cầu.');return json;}
+export function download(name:string,data:string,type='application/json'){const u=URL.createObjectURL(new Blob([data],{type}));const a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
+

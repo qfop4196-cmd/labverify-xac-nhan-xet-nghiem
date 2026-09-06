@@ -1,0 +1,14 @@
+import {Draft,Evaluation,parseRows} from '@/lib/engine';
+import {api,statusLabel} from './ui';
+export async function exportExcel(records:any[]){
+ const loaded=await import('exceljs');const ExcelJS=loaded.default??loaded;const book=new ExcelJS.Workbook();book.creator='LabVerify';book.created=new Date();
+ const summary=book.addWorksheet('Ho so');summary.columns=[{header:'Hồ sơ',key:'id',width:26},{header:'Tên',key:'title',width:35},{header:'Đơn vị',key:'lab',width:26},{header:'Máy',key:'machine',width:28},{header:'Xét nghiệm',key:'analyte',width:16},{header:'Trạng thái',key:'status',width:20},{header:'Kết quả',key:'result',width:30},{header:'Phiên bản',key:'revision',width:15},{header:'Dữ liệu',key:'sample',width:16}];
+ const detail=book.addWorksheet('Ket qua');detail.addRow(['Hồ sơ','Mức','Thông số','Giá trị','Giới hạn','Đơn vị','Quy tắc','Kết luận','Nguồn']);
+ const raw=book.addWorksheet('So do');raw.addRow(['Hồ sơ','Mức','Ngày/nhóm','Lần lặp','Giá trị','Đơn vị']);
+ const source=book.addWorksheet('Nguon va pham vi');source.addRow(['Hồ sơ','Nguồn','Phiên bản nguồn','Liên kết','Lô','Phạm vi','Lưu ý']);
+ records.forEach(r=>{const d=r.draft as Draft,e=r.evaluation as Evaluation;summary.addRow({id:r.id,title:d.title,lab:d.lab,machine:d.instrument,analyte:d.analyte,status:statusLabel[r.status],result:e.label,revision:r.revision,sample:r.sample?'Giả lập':'Người nhập'});(e.levels.length?e.levels:[{name:d.study,criteria:e.criteria}]).forEach(l=>l.criteria.forEach(c=>detail.addRow([r.id,l.name,c.name,c.value,c.limit,c.unit,c.rule,c.pass===null?'Chưa đủ':c.pass?'Đạt':'Chưa đạt',c.source])));(d.study==='precision'?d.levels:[]).forEach(l=>{try{parseRows(l.data).forEach((row,i)=>row.forEach((v,j)=>raw.addRow([r.id,l.name,i+1,j+1,v,d.unit])));}catch{}});if(d.study!=='precision'){if(d.study==='qualitative'){for(const key of ['tp','fp','fn','tn'])raw.addRow([r.id,key,1,1,d.extras[key as 'tp'],'mẫu']);}else{try{parseRows(d.extras.data).forEach((row,i)=>row.forEach((v,j)=>raw.addRow([r.id,d.study,i+1,j+1,v,d.unit])));}catch{}}}source.addRow([r.id,d.source,d.sourceVersion,d.sourceUrl,d.lot,e.scope,[...e.blockers,...e.warnings].join('\n')]);});
+ for(const s of book.worksheets){s.getRow(1).font={bold:true,color:{argb:'FFFFFFFF'}};s.getRow(1).fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF007E78'}};s.views=[{state:'frozen',ySplit:1}];s.eachRow(row=>row.alignment={vertical:'top',wrapText:true});if(s!==summary)s.columns.forEach((c,i)=>c.width=i===0?25:24);s.autoFilter={from:{row:1,column:1},to:{row:1,column:s.columnCount}};}
+ const bytes=await book.xlsx.writeBuffer();const u=URL.createObjectURL(new Blob([bytes as BlobPart],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));const a=document.createElement('a');a.href=u;a.download=`LabVerify-${new Date().toISOString().slice(0,10)}.xlsx`;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);await api('auditExport',{format:'Excel XLSX'}).catch(()=>{});
+}
+
+
