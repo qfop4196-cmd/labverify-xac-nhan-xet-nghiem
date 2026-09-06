@@ -1,0 +1,15 @@
+services:
+  labverify:
+    build: .
+    ports:
+      - "8787:8787"
+    env_file:
+      - .env.local
+    environment:
+      LABVERIFY_LOCAL_MODE: "true"
+    volumes:
+      - labverify_data:/data
+    restart: unless-stopped
+
+volumes:
+  labverify_data:

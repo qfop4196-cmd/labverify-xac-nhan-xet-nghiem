@@ -29,6 +29,12 @@ npm run build
 
 Kiểm thử API dùng máy chủ phát triển ở localhost:3000 và cookie giả lập có sẵn của Sites, không chạy vào hệ thống thực. Phải áp dụng migration Drizzle vào D1 cục bộ trước. Production nhận danh tính từ Sites dispatcher; không triển khai trực tiếp Worker có header định danh do client tự cung cấp vào môi trường công khai.
 
+## Chạy tại máy chủ cá nhân / đơn vị
+
+Đã có `Dockerfile`, `docker-compose.yml` và đăng nhập cục bộ ký số để vận hành không phụ thuộc Sites. Cài Docker Desktop, sao chép `.env.local.example` thành `.env.local`, thay toàn bộ mật khẩu mẫu và chạy `docker compose up -d --build`. Máy chủ lắng nghe cổng 8787, dữ liệu nằm trong Docker volume tại chính máy chủ. Hướng dẫn vận hành, sao lưu và truy cập VPN ở `docs/SELF_HOSTING.md`.
+
+Khi dùng Docker cục bộ, thiết lập `LABVERIFY_LOCAL_MODE=true` qua compose. Ứng dụng chỉ chấp nhận người dùng khai báo trong `LABVERIFY_LOCAL_USERS`; phiên đăng nhập dùng cookie HTTP-only được ký HMAC, hết hạn sau 12 giờ. Dùng HTTPS/VPN cho truy cập ngoài máy chủ; không công bố trực tiếp cổng 8787 ra Internet.
+
 `db/schema.ts` quản lý schema; `drizzle/` chứa migration. `lib/engine.ts` là phép tính chuẩn dùng chung giao diện và máy chủ. `lib/catalog.ts` là bộ tham chiếu có phiên bản. `.openai/hosting.json` chứa định danh Site và binding D1; không chứa thông tin bí mật.
 
 Mô hình AI: https://huggingface.co/Xenova/paraphrase-multilingual-MiniLM-L12-v2, revision `2c4055b12046f11709e9df2c122e59ffbdc2f900`. Lần đầu trình duyệt tải trọng số và bộ tách từ; cần mạng và tài nguyên phù hợp. Trọng số được cache tại thiết bị. Mô hình không được tải trong Worker máy chủ 128 MB. Tìm từ khóa vẫn hoạt động khi không tải được mô hình.

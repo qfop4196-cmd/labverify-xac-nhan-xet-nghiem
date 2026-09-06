@@ -14,9 +14,11 @@ Ngày xác nhận: 07/09/2026
 | Bản dựng | `npm run build` | Tạo được worker và giao diện để triển khai |
 | Phụ thuộc | `npm audit --omit=dev` | Không có lỗ hổng được báo cáo |
 | Cơ sở dữ liệu | Chạy migration D1 cục bộ | 11 câu lệnh tạo cấu trúc và dữ liệu mẫu hoàn tất |
+| Đăng nhập máy chủ nội bộ | POST `/api/local-auth`, sau đó gọi `/api/lab` bằng cookie nhận được | Cookie `HttpOnly` ký HMAC được tạo; API trả 200 cho phiên hợp lệ |
 
 ## Giới hạn xác nhận
 
 - WebMCP đã được đăng ký để đọc và tạo bản nháp đánh giá; môi trường kiểm thử cục bộ hiện không cung cấp ngữ cảnh WebMCP tương thích để chạy kiểm thử đầu-cuối.
 - Không khẳng định tương đương thẩm định lâm sàng. Kết quả của ứng dụng là hỗ trợ quyết định theo dữ liệu đầu vào, với nguồn tham chiếu, phiên bản, đơn vị và điều kiện được hiển thị để người có thẩm quyền phê duyệt.
 - Các hồ sơ FT4 nội bộ gắn cờ “cần xác nhận IFU” khi không có tài liệu IFU chính thức trong hồ sơ dự án; ứng dụng không dùng chúng để tự động tuyên bố tuân thủ nhà sản xuất.
+- Docker Desktop chưa được cài trên máy phát triển hiện tại, vì vậy chưa chạy kiểm thử container; typecheck, build và xác thực cục bộ đã đạt.
